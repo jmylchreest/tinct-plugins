@@ -94,8 +94,8 @@ jobs:
 
           # Sync using configuration file
           ./tinct-repo-manager sync \
-            --config contrib/repository/sync-config.jsonl \
-            --manifest contrib/repository/repository.json \
+            --config repository/sync-config.jsonl \
+            --manifest repository/repository.json \
             --min-protocol-version 0.0.1 \
             $PRUNE_FLAGS \
             --verbose
@@ -104,12 +104,12 @@ jobs:
         run: |
           echo "Validating manifest..."
           ./tinct-repo-manager validate \
-            --manifest contrib/repository/repository.json
+            --manifest repository/repository.json
 
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet contrib/repository/repository.json; then
+          if git diff --quiet repository/repository.json; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -120,7 +120,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add contrib/repository/repository.json
+          git add repository/repository.json
 
           # Create commit message
           MSG="chore(repository): sync plugins"
