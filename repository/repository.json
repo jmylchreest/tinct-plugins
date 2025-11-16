@@ -3,7 +3,7 @@
   "name": "Tinct Official Plugin Repository",
   "description": "Official repository for Tinct plugins",
   "url": "https://raw.githubusercontent.com/jmylchreest/tinct/refs/heads/main/contrib/repository/repository.json",
-  "last_updated": "2025-11-16T12:16:19.652430141Z",
+  "last_updated": "2025-11-16T12:47:07.284816363Z",
   "last_pruned": "2025-11-12T22:25:50.858825296Z",
   "plugins": {
     "dunstify": {
@@ -12,6 +12,32 @@
       "description": "Send desktop notifications via dunstify or notify-send",
       "repository": "",
       "versions": [
+        {
+          "version": "0.0.16",
+          "released": "2025-11-16T12:45:57Z",
+          "compatibility": ">=0.0.0",
+          "changelog_url": "https://github.com/jmylchreest/tinct/releases/tag/v0.0.16",
+          "downloads": {
+            "linux_arm": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-dunstify_0.0.16_Linux_armv7.tar.gz",
+              "checksum": "sha256:8f672c0a453b2204c342b5ab855e43098f66ce73914400c476212012209e1dfe",
+              "size": 4662535,
+              "available": true
+            },
+            "linux_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-dunstify_0.0.16_Linux_arm64.tar.gz",
+              "checksum": "sha256:36e10b5de8c36a06cfed14ba86de9ea06e5eabd9a38b60f38ecc9453cf2934aa",
+              "size": 4493272,
+              "available": true
+            },
+            "linux_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-dunstify_0.0.16_Linux_x86_64.tar.gz",
+              "checksum": "sha256:4127620d2441ee961770a0293f3dc2e0da12face5bdcb397acbf34d3c8e82c4a",
+              "size": 4924385,
+              "available": true
+            }
+          }
+        },
         {
           "version": "0.0.14",
           "released": "2025-11-16T12:12:58Z",
@@ -429,6 +455,44 @@
       "description": "Generate random colour palettes with configurable seed and colour count",
       "repository": "",
       "versions": [
+        {
+          "version": "0.0.16",
+          "released": "2025-11-16T12:45:57Z",
+          "compatibility": ">=0.0.0",
+          "changelog_url": "https://github.com/jmylchreest/tinct/releases/tag/v0.0.16",
+          "downloads": {
+            "freebsd_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-random_0.0.16_Freebsd_arm64.tar.gz",
+              "checksum": "sha256:ca27d872809508fc0ccd1ac3533740abfe711ee9d887d64eac1a1da714af3408",
+              "size": 4430406,
+              "available": true
+            },
+            "freebsd_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-random_0.0.16_Freebsd_x86_64.tar.gz",
+              "checksum": "sha256:224d8969995707b76e76af76c632802d5898382b083ac6cd4a1246095a79ba8e",
+              "size": 4856260,
+              "available": true
+            },
+            "linux_arm": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-random_0.0.16_Linux_armv7.tar.gz",
+              "checksum": "sha256:c3a07761ef8b3b89a519bab8bd97cb2a565342fecd2377a3430c3554bc9e1147",
+              "size": 4624049,
+              "available": true
+            },
+            "linux_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-random_0.0.16_Linux_arm64.tar.gz",
+              "checksum": "sha256:4154604a7ab295f9b3993e486879396bbf7fcbedd7d3bb27836d983ce85f9475",
+              "size": 4453113,
+              "available": true
+            },
+            "linux_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-random_0.0.16_Linux_x86_64.tar.gz",
+              "checksum": "sha256:6f69153f5f156b1d8ce0488ed1990cbd8f92cf596d3dfcf78a8d697a302bd881",
+              "size": 4881547,
+              "available": true
+            }
+          }
+        },
         {
           "version": "0.0.14",
           "released": "2025-11-16T12:12:58Z",
@@ -911,6 +975,44 @@
       "description": "Templater for custom configuration files",
       "repository": "",
       "versions": [
+        {
+          "version": "0.0.16",
+          "released": "2025-11-16T12:45:57Z",
+          "compatibility": ">=0.0.0",
+          "changelog_url": "https://github.com/jmylchreest/tinct/releases/tag/v0.0.16",
+          "downloads": {
+            "freebsd_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-templater_0.0.16_Freebsd_arm64.tar.gz",
+              "checksum": "sha256:4baa13d5e0167b6fece545a645ad61e2b6054d7666a188729e0421be9891ae19",
+              "size": 4582993,
+              "available": true
+            },
+            "freebsd_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-templater_0.0.16_Freebsd_x86_64.tar.gz",
+              "checksum": "sha256:324e56f95c78bdf21ea3372715331926d96a8cddcd595a740bceb1179e00b4f4",
+              "size": 5036351,
+              "available": true
+            },
+            "linux_arm": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-templater_0.0.16_Linux_armv7.tar.gz",
+              "checksum": "sha256:1cd2b3f8de84deedac1ea5e881221cbb3db098e4598c36e5d0df2f558de4e80e",
+              "size": 4787488,
+              "available": true
+            },
+            "linux_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-templater_0.0.16_Linux_arm64.tar.gz",
+              "checksum": "sha256:9bcf13f046fe08d59457cb853f71ae57199530feedaff8d2a859d8323091d20e",
+              "size": 4609655,
+              "available": true
+            },
+            "linux_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-templater_0.0.16_Linux_x86_64.tar.gz",
+              "checksum": "sha256:33c47f6e03dac318d8d46e3d7dd2180045c9d25e4b1590ffdddac1fe418ae7d8",
+              "size": 5056387,
+              "available": true
+            }
+          }
+        },
         {
           "version": "0.0.14",
           "released": "2025-11-16T12:12:58Z",
@@ -1431,6 +1533,32 @@
       "repository": "",
       "versions": [
         {
+          "version": "0.0.16",
+          "released": "2025-11-16T12:45:57Z",
+          "compatibility": ">=0.0.0",
+          "changelog_url": "https://github.com/jmylchreest/tinct/releases/tag/v0.0.16",
+          "downloads": {
+            "linux_arm": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-wob_0.0.16_Linux_armv7.tar.gz",
+              "checksum": "sha256:eb152821959faf54f370f639cef658d0142b6dce861496ede7d729d2c6bb3c26",
+              "size": 1294638,
+              "available": true
+            },
+            "linux_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-wob_0.0.16_Linux_arm64.tar.gz",
+              "checksum": "sha256:68a2926f8997f75735d18b45e57de2471a3d3279f48f19d9171d6cf19822258e",
+              "size": 1270298,
+              "available": true
+            },
+            "linux_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-wob_0.0.16_Linux_x86_64.tar.gz",
+              "checksum": "sha256:0d9ae9157fd4254ef9609b3663b6f12c16baa709beae7b6095a7ca4f109007ad",
+              "size": 1382165,
+              "available": true
+            }
+          }
+        },
+        {
           "version": "0.0.14",
           "released": "2025-11-16T12:12:58Z",
           "compatibility": ">=0.0.0",
@@ -1750,6 +1878,50 @@
       "description": "Generate Zed editor theme files",
       "repository": "",
       "versions": [
+        {
+          "version": "0.0.16",
+          "released": "2025-11-16T12:45:57Z",
+          "compatibility": ">=0.0.0",
+          "changelog_url": "https://github.com/jmylchreest/tinct/releases/tag/v0.0.16",
+          "downloads": {
+            "darwin_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-zed_0.0.16_Darwin_arm64.tar.gz",
+              "checksum": "sha256:48324a418ab15a7ff8ad60e640813640df4cb50e686610dcaa70cbe54b1074d8",
+              "size": 4695865,
+              "available": true
+            },
+            "darwin_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-zed_0.0.16_Darwin_x86_64.tar.gz",
+              "checksum": "sha256:042206c4584a3d51a602688197467d931eb15031593ce270c35cbb5c051fc9d6",
+              "size": 5033092,
+              "available": true
+            },
+            "freebsd_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-zed_0.0.16_Freebsd_arm64.tar.gz",
+              "checksum": "sha256:15130d3c770f36a8195574faf80a2a92de98b12a3072e03c721dc7073b526ee0",
+              "size": 4463136,
+              "available": true
+            },
+            "freebsd_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-zed_0.0.16_Freebsd_x86_64.tar.gz",
+              "checksum": "sha256:5219d3202a76f919396fa965727a0ecfbc750dd668588452e550211248b65ade",
+              "size": 4892083,
+              "available": true
+            },
+            "linux_arm64": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-zed_0.0.16_Linux_arm64.tar.gz",
+              "checksum": "sha256:630a97692f97c2adbd7ab446b4cb7bf35b5a28ddab4954fd5844c264f1e544fb",
+              "size": 4485679,
+              "available": true
+            },
+            "linux_x86": {
+              "url": "https://github.com/jmylchreest/tinct/releases/download/v0.0.16/tinct-plugin-zed_0.0.16_Linux_x86_64.tar.gz",
+              "checksum": "sha256:cf6e2063d8d16317aa613ea6c65502d48404150a5ebcd992fe9e87db71277c71",
+              "size": 4918057,
+              "available": true
+            }
+          }
+        },
         {
           "version": "0.0.14",
           "released": "2025-11-16T12:12:58Z",
