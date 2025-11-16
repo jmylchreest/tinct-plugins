@@ -15,6 +15,21 @@ on:
         required: false
         default: true
         type: boolean
+      prune_incompatible:
+        description: "Prune incompatible plugin versions"
+        required: false
+        default: true
+        type: boolean
+      keep_recent:
+        description: "Keep only N most recent versions per plugin"
+        required: false
+        default: 5
+        type: number
+      min_protocol_version:
+        description: "Minimum protocol version (leave empty to disable)"
+        required: false
+        default: ""
+        type: string
 
   # Trigger when repo-manager tool or sync config changes
   push:
@@ -71,8 +86,14 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "release" ] || [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "push" ]; then
             echo "prune=true" >> $GITHUB_OUTPUT
+            echo "prune_incompatible=true" >> $GITHUB_OUTPUT
+            echo "keep_recent=5" >> $GITHUB_OUTPUT
+            echo "min_protocol_version=" >> $GITHUB_OUTPUT
           else
             echo "prune=${{ github.event.inputs.prune }}" >> $GITHUB_OUTPUT
+            echo "prune_incompatible=${{ github.event.inputs.prune_incompatible }}" >> $GITHUB_OUTPUT
+            echo "keep_recent=${{ github.event.inputs.keep_recent }}" >> $GITHUB_OUTPUT
+            echo "min_protocol_version=${{ github.event.inputs.min_protocol_version }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Sync plugins from config
@@ -80,24 +101,44 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PRUNE="${{ steps.params.outputs.prune }}"
+          PRUNE_INCOMPATIBLE="${{ steps.params.outputs.prune_incompatible }}"
+          KEEP_RECENT="${{ steps.params.outputs.keep_recent }}"
+          MIN_PROTOCOL_VERSION="${{ steps.params.outputs.min_protocol_version }}"
 
-          echo "Syncing plugins from sync-config.jsonl with protocol version 0.0.1+"
+          echo "Syncing plugins from sync-config.jsonl"
           if [ "$PRUNE" = "true" ]; then
             echo "Pruning enabled (remove after 720h)"
           fi
+          if [ "$PRUNE_INCOMPATIBLE" = "true" ]; then
+            echo "Pruning incompatible versions enabled"
+          fi
+          if [ -n "$KEEP_RECENT" ] && [ "$KEEP_RECENT" != "0" ]; then
+            echo "Keeping $KEEP_RECENT most recent versions per plugin"
+          fi
+          if [ -n "$MIN_PROTOCOL_VERSION" ]; then
+            echo "Minimum protocol version: $MIN_PROTOCOL_VERSION"
+          fi
 
-          # Build prune flags
-          PRUNE_FLAGS=""
+          # Build flags
+          FLAGS=""
           if [ "$PRUNE" = "true" ]; then
-            PRUNE_FLAGS="--prune --prune-remove-after 720h"
+            FLAGS="$FLAGS --prune --prune-remove-after 720h"
+          fi
+          if [ "$PRUNE_INCOMPATIBLE" = "true" ]; then
+            FLAGS="$FLAGS --prune-incompatible"
+          fi
+          if [ -n "$KEEP_RECENT" ] && [ "$KEEP_RECENT" != "0" ]; then
+            FLAGS="$FLAGS --keep-recent $KEEP_RECENT"
+          fi
+          if [ -n "$MIN_PROTOCOL_VERSION" ]; then
+            FLAGS="$FLAGS --min-protocol-version $MIN_PROTOCOL_VERSION"
           fi
 
           # Sync using configuration file
           ./tinct-repo-manager sync \
             --config repository/sync-config.jsonl \
             --manifest repository/repository.json \
-            --min-protocol-version 0.0.1 \
-            $PRUNE_FLAGS \
+            $FLAGS \
             --verbose
 
       - name: Validate manifest
@@ -138,4 +179,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Config**: sync-config.jsonl" >> $GITHUB_STEP_SUMMARY
           echo "- **Prune**: ${{ steps.params.outputs.prune }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Prune Incompatible**: ${{ steps.params.outputs.prune_incompatible }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Keep Recent**: ${{ steps.params.outputs.keep_recent }}" >> $GITHUB_STEP_SUMMARY
+          MIN_VER="${{ steps.params.outputs.min_protocol_version }}"
+          if [ -n "$MIN_VER" ]; then
+            echo "- **Min Protocol Version**: $MIN_VER" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Min Protocol Version**: (disabled)" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "- **Changes**: ${{ steps.changes.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
