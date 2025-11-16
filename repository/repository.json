@@ -3,8 +3,8 @@
   "name": "Tinct Official Plugin Repository",
   "description": "Official repository for Tinct plugins",
   "url": "https://raw.githubusercontent.com/jmylchreest/tinct/refs/heads/main/contrib/repository/repository.json",
-  "last_updated": "2025-11-16T14:20:08.31686562Z",
-  "last_pruned": "2025-11-16T14:20:08.316865189Z",
+  "last_updated": "2025-11-16T14:23:27.854502247Z",
+  "last_pruned": "2025-11-16T14:23:27.854501967Z",
   "plugins": {
     "notify-send": {
       "name": "notify-send",
