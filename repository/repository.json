@@ -3,8 +3,8 @@
   "name": "Tinct Official Plugin Repository",
   "description": "Official repository for Tinct plugins",
   "url": "https://raw.githubusercontent.com/jmylchreest/tinct/refs/heads/main/contrib/repository/repository.json",
-  "last_updated": "2025-11-20T17:31:11.188318114Z",
-  "last_pruned": "2025-11-20T17:31:11.188317902Z",
+  "last_updated": "2025-11-20T19:27:26.670362995Z",
+  "last_pruned": "2025-11-20T19:27:26.670362765Z",
   "plugins": {
     "dunstify": {
       "name": "dunstify",
@@ -235,9 +235,7 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-keylightd-tray_0.1.2_Linux_armv7.tar.gz",
               "checksum": "sha256:b3f0a5fda18b1f6bb22b97820bb4bf5f098c97709bb0954ff3c5399309b6d550",
               "size": 4626746,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:57.020855324Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "linux_arm64": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-keylightd-tray_0.1.2_Linux_arm64.tar.gz",
@@ -922,9 +920,7 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.5/tinct-plugin-zed_0.1.5_Darwin_x86_64.tar.gz",
               "checksum": "sha256:c056160f356655b1572b3aa44e2b071a455cdd387aa40a4e220cf3e34fd2f282",
               "size": 5033491,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:48.676647034Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "freebsd_arm64": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.5/tinct-plugin-zed_0.1.5_Freebsd_arm64.tar.gz",
@@ -942,17 +938,13 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.5/tinct-plugin-zed_0.1.5_Linux_arm64.tar.gz",
               "checksum": "sha256:8c8038277b2cba4031900e09241eb8aecdc42fcecc2415b0532a7c56a3d0ccf9",
               "size": 4488178,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:55.000156211Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "linux_x86": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.5/tinct-plugin-zed_0.1.5_Linux_x86_64.tar.gz",
               "checksum": "sha256:ff77f139ed474201705eb2936753d2105af20f0bd546605dac1864004c75c5ba",
               "size": 4917854,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:44.532567158Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             }
           }
         },
@@ -1010,17 +1002,13 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-zed_0.1.2_Darwin_arm64.tar.gz",
               "checksum": "sha256:44832d86fd234e79a3297a323fbc5b6a171f81bd0deef09223a42ce38722a3cc",
               "size": 4697005,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:20.400568714Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "darwin_x86": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-zed_0.1.2_Darwin_x86_64.tar.gz",
               "checksum": "sha256:ab25a4cafb2fab40de5141bff8582ad8ac5cccbdb0ef8a9231e5663cc13adca7",
               "size": 5033485,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:22.421465696Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "freebsd_arm64": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-zed_0.1.2_Freebsd_arm64.tar.gz",
@@ -1064,9 +1052,7 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.1/tinct-plugin-zed_0.1.1_Darwin_x86_64.tar.gz",
               "checksum": "sha256:41e74c119acde373f4436ca3aa48bb357ecc13cbaa91811eb639db5321c39320",
               "size": 5037622,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:12.251657554Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "freebsd_arm64": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.1/tinct-plugin-zed_0.1.1_Freebsd_arm64.tar.gz",
@@ -1078,25 +1064,19 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.1/tinct-plugin-zed_0.1.1_Freebsd_x86_64.tar.gz",
               "checksum": "sha256:115e75b7513a8deedaa6ce7c527b3ec182a0bf7951e169e55463acb7da7be3f6",
               "size": 4895364,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:16.36305094Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "linux_arm64": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.1/tinct-plugin-zed_0.1.1_Linux_arm64.tar.gz",
               "checksum": "sha256:dbe517d9f66df96378b705d92e95553166ab83544d7eeffbd797253402d1cc41",
               "size": 4489310,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:18.382073241Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "linux_x86": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.1/tinct-plugin-zed_0.1.1_Linux_x86_64.tar.gz",
               "checksum": "sha256:84b857e48d24bae120d2c068641c4674f9d3ad5e6389fb85f083dde8ee4dc41a",
               "size": 4920652,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:08.108507136Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             }
           }
         },
@@ -1128,9 +1108,7 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.0/tinct-plugin-zed_0.1.0_Freebsd_x86_64.tar.gz",
               "checksum": "sha256:dd113ff35755e3457587eaeddda6e6824f003183c032cf591c25cfeb96be34ee",
               "size": 4895645,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:01.958262157Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             },
             "linux_arm64": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.0/tinct-plugin-zed_0.1.0_Linux_arm64.tar.gz",
@@ -1142,9 +1120,7 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.0/tinct-plugin-zed_0.1.0_Linux_x86_64.tar.gz",
               "checksum": "sha256:3a682059a4dde9af29e32bd09e127af0e68ba6286ac48fc2d05763d4ae55ac00",
               "size": 4920496,
-              "available": false,
-              "unavailable_since": "2025-11-20T17:30:06.088713804Z",
-              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
+              "available": true
             }
           }
         }
