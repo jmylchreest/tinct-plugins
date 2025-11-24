@@ -3,8 +3,8 @@
   "name": "Tinct Official Plugin Repository",
   "description": "Official repository for Tinct plugins",
   "url": "https://raw.githubusercontent.com/jmylchreest/tinct/refs/heads/main/contrib/repository/repository.json",
-  "last_updated": "2025-11-24T13:42:06.874030326Z",
-  "last_pruned": "2025-11-24T13:42:06.874030026Z",
+  "last_updated": "2025-11-24T14:35:05.017730398Z",
+  "last_pruned": "2025-11-24T14:35:05.017730138Z",
   "plugins": {
     "dunstify": {
       "name": "dunstify",
@@ -419,13 +419,17 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-random_0.1.2_Freebsd_arm64.tar.gz",
               "checksum": "sha256:f07a370b50681e6f8a61576fc1f77941080c6bb12ef41b0434378e1d44387129",
               "size": 4427524,
-              "available": true
+              "available": false,
+              "unavailable_since": "2025-11-24T14:34:00.419478696Z",
+              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
             },
             "freebsd_x86": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-random_0.1.2_Freebsd_x86_64.tar.gz",
               "checksum": "sha256:b1379713bb7e60922c6e9f91782cdacbc41ef4d2054105cf59cca7a401dcf583",
               "size": 4854635,
-              "available": true
+              "available": false,
+              "unavailable_since": "2025-11-24T14:34:02.518377019Z",
+              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
             },
             "linux_arm": {
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.2/tinct-plugin-random_0.1.2_Linux_armv7.tar.gz",
@@ -481,7 +485,9 @@
               "url": "https://github.com/jmylchreest/tinct/releases/download/v0.1.1/tinct-plugin-random_0.1.1_Linux_x86_64.tar.gz",
               "checksum": "sha256:9d158d2099f3a27145175ab050c114590c453fe2deb96aeea0804fae4c6781b9",
               "size": 4881526,
-              "available": true
+              "available": false,
+              "unavailable_since": "2025-11-24T14:33:58.329009626Z",
+              "unavailable_reason": "HTTP 503: 503 Service Unavailable"
             }
           }
         },
