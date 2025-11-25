@@ -3,8 +3,8 @@
   "name": "Tinct Official Plugin Repository",
   "description": "Official repository for Tinct plugins",
   "url": "https://raw.githubusercontent.com/jmylchreest/tinct/refs/heads/main/contrib/repository/repository.json",
-  "last_updated": "2025-11-25T19:25:07.271960365Z",
-  "last_pruned": "2025-11-25T19:25:07.271960085Z",
+  "last_updated": "2025-11-25T20:31:53.328483939Z",
+  "last_pruned": "2025-11-25T20:31:53.328483588Z",
   "plugins": {
     "dunstify": {
       "name": "dunstify",
