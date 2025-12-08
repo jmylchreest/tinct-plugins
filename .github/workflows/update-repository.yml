@@ -1,20 +1,32 @@
 name: Update Repository
 
 on:
-  release:
-    types: [published]
-
   schedule:
     # Hourly sync
     - cron: "0 * * * *"
 
   workflow_dispatch:
     inputs:
+      binary_source:
+        description: "Binary source preference"
+        required: false
+        default: "latest"
+        type: choice
+        options:
+          - latest # Most recent (prerelease or stable)
+          - stable # Latest stable release only
+          - preview # Latest preview/prerelease only
+          - build # Always build from source
       prune:
         description: "Prune unavailable entries after sync"
         required: false
         default: true
         type: boolean
+      prune_remove_after:
+        description: "Remove entries unavailable for this duration (e.g., 24h, 168h, 720h)"
+        required: false
+        default: "24h"
+        type: string
       prune_incompatible:
         description: "Prune incompatible plugin versions"
         required: false
@@ -38,6 +50,11 @@ on:
     branches:
       - main
 
+  # Trigger from tinct repository on new releases (both stable and preview)
+  # Payload includes: client_payload.release_type (preview/stable) and client_payload.version
+  repository_dispatch:
+    types: [tinct-release]
+
 jobs:
   update-repository:
     runs-on: ubuntu-latest
@@ -46,27 +63,122 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Determine binary source preference
+        id: binary_pref
+        run: |
+          # Determine which binary source to use
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SOURCE_PREF="${{ github.event.inputs.binary_source }}"
+          else
+            SOURCE_PREF="latest"
+          fi
+          echo "source_preference=$SOURCE_PREF" >> $GITHUB_OUTPUT
+          echo "Binary source preference: $SOURCE_PREF"
+
+          # Capture repository_dispatch payload if present
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            RELEASE_TYPE="${{ github.event.client_payload.release_type }}"
+            RELEASE_VERSION="${{ github.event.client_payload.version }}"
+            echo "triggered_by=tinct-release" >> $GITHUB_OUTPUT
+            echo "tinct_release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+            echo "tinct_release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+            echo "Triggered by tinct $RELEASE_TYPE release: $RELEASE_VERSION"
+          else
+            echo "triggered_by=${{ github.event_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Download repo-manager binary
         id: download
         run: |
-          echo "Fetching latest tinct-repo-manager release..."
+          SOURCE_PREF="${{ steps.binary_pref.outputs.source_preference }}"
+          echo "Fetching tinct-repo-manager binary (preference: $SOURCE_PREF)..."
 
-          # Try to get the latest release with the binary
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/jmylchreest/tinct/releases/latest)
-          DOWNLOAD_URL=$(echo "$LATEST_RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
+          DOWNLOAD_URL=""
+          RELEASE_TAG=""
 
-          if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
-            echo "No pre-built binary found in latest release, will build from source"
+          if [ "$SOURCE_PREF" = "build" ]; then
+            echo "Configured to build from source, skipping download"
             echo "use_binary=false" >> $GITHUB_OUTPUT
+            echo "source=built-from-source" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Fetch all releases (up to 20)
+          echo "Fetching releases..."
+          ALL_RELEASES=$(curl -s "https://api.github.com/repos/jmylchreest/tinct/releases?per_page=20")
+
+          if [ "$SOURCE_PREF" = "latest" ]; then
+            # Get the most recent release (prerelease or stable) with binary
+            echo "Looking for most recent release (any type)..."
+            RELEASE=$(echo "$ALL_RELEASES" | jq -r 'first')
+            DOWNLOAD_URL=$(echo "$RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
+            RELEASE_TAG=$(echo "$RELEASE" | jq -r '.tag_name')
+
+            if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
+              echo "Most recent release lacks binary, checking other releases..."
+              for i in $(seq 0 19); do
+                RELEASE=$(echo "$ALL_RELEASES" | jq -r ".[$i]")
+                if [ "$RELEASE" = "null" ]; then
+                  break
+                fi
+                DOWNLOAD_URL=$(echo "$RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
+                if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then
+                  RELEASE_TAG=$(echo "$RELEASE" | jq -r '.tag_name')
+                  echo "Found binary in release: $RELEASE_TAG"
+                  break
+                fi
+              done
+            else
+              echo "Found binary in most recent release: $RELEASE_TAG"
+            fi
+
+          elif [ "$SOURCE_PREF" = "stable" ]; then
+            # Get latest stable (non-prerelease) only
+            echo "Looking for latest stable release..."
+            STABLE_RELEASE=$(echo "$ALL_RELEASES" | jq -r '[.[] | select(.prerelease == false)] | first')
+            DOWNLOAD_URL=$(echo "$STABLE_RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
+            RELEASE_TAG=$(echo "$STABLE_RELEASE" | jq -r '.tag_name')
+
+            if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then
+              echo "Found binary in stable release: $RELEASE_TAG"
+            else
+              echo "No binary found in stable releases"
+            fi
+
+          elif [ "$SOURCE_PREF" = "preview" ]; then
+            # Get latest preview (prerelease) only
+            echo "Looking for latest preview release..."
+            PREVIEW_RELEASE=$(echo "$ALL_RELEASES" | jq -r '[.[] | select(.prerelease == true)] | first')
+            DOWNLOAD_URL=$(echo "$PREVIEW_RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
+            RELEASE_TAG=$(echo "$PREVIEW_RELEASE" | jq -r '.tag_name')
+
+            if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then
+              echo "Found binary in preview release: $RELEASE_TAG"
+            else
+              echo "No binary found in preview releases"
+            fi
+          fi
+
+          # Download and verify
+          if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
+            echo "No pre-built binary found, will build from source"
+            echo "use_binary=false" >> $GITHUB_OUTPUT
+            echo "source=built-from-source" >> $GITHUB_OUTPUT
           else
             echo "Downloading from: $DOWNLOAD_URL"
             curl -L -o tinct-repo-manager.tar.gz "$DOWNLOAD_URL"
             tar -xzf tinct-repo-manager.tar.gz
             chmod +x tinct-repo-manager
-            echo "use_binary=true" >> $GITHUB_OUTPUT
 
             # Verify it works
-            ./tinct-repo-manager --version || echo "Binary check failed, will build from source"
+            if ./tinct-repo-manager --version; then
+              echo "use_binary=true" >> $GITHUB_OUTPUT
+              echo "source=$RELEASE_TAG" >> $GITHUB_OUTPUT
+            else
+              echo "Binary check failed, will build from source"
+              echo "use_binary=false" >> $GITHUB_OUTPUT
+              echo "source=built-from-source" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - uses: actions/setup-go@v5
@@ -84,13 +196,15 @@ jobs:
       - name: Determine parameters
         id: params
         run: |
-          if [ "${{ github.event_name }}" = "release" ] || [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "push" ]; then
+          if [ "${{ github.event_name }}" = "repository_dispatch" ] || [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "push" ]; then
             echo "prune=true" >> $GITHUB_OUTPUT
+            echo "prune_remove_after=24h" >> $GITHUB_OUTPUT
             echo "prune_incompatible=true" >> $GITHUB_OUTPUT
             echo "keep_recent=5" >> $GITHUB_OUTPUT
             echo "min_protocol_version=" >> $GITHUB_OUTPUT
           else
             echo "prune=${{ github.event.inputs.prune }}" >> $GITHUB_OUTPUT
+            echo "prune_remove_after=${{ github.event.inputs.prune_remove_after }}" >> $GITHUB_OUTPUT
             echo "prune_incompatible=${{ github.event.inputs.prune_incompatible }}" >> $GITHUB_OUTPUT
             echo "keep_recent=${{ github.event.inputs.keep_recent }}" >> $GITHUB_OUTPUT
             echo "min_protocol_version=${{ github.event.inputs.min_protocol_version }}" >> $GITHUB_OUTPUT
@@ -101,13 +215,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PRUNE="${{ steps.params.outputs.prune }}"
+          PRUNE_REMOVE_AFTER="${{ steps.params.outputs.prune_remove_after }}"
           PRUNE_INCOMPATIBLE="${{ steps.params.outputs.prune_incompatible }}"
           KEEP_RECENT="${{ steps.params.outputs.keep_recent }}"
           MIN_PROTOCOL_VERSION="${{ steps.params.outputs.min_protocol_version }}"
 
           echo "Syncing plugins from sync-config.jsonl"
           if [ "$PRUNE" = "true" ]; then
-            echo "Pruning enabled (remove after 720h)"
+            echo "Pruning enabled (remove after $PRUNE_REMOVE_AFTER)"
           fi
           if [ "$PRUNE_INCOMPATIBLE" = "true" ]; then
             echo "Pruning incompatible versions enabled"
@@ -122,7 +237,7 @@ jobs:
           # Build flags
           FLAGS=""
           if [ "$PRUNE" = "true" ]; then
-            FLAGS="$FLAGS --prune --prune-remove-after 720h"
+            FLAGS="$FLAGS --prune --prune-remove-after $PRUNE_REMOVE_AFTER"
           fi
           if [ "$PRUNE_INCOMPATIBLE" = "true" ]; then
             FLAGS="$FLAGS --prune-incompatible"
@@ -134,10 +249,12 @@ jobs:
             FLAGS="$FLAGS --min-protocol-version $MIN_PROTOCOL_VERSION"
           fi
 
-          # Sync using configuration file
+          # Sync using configuration file with changelog tracking
           ./tinct-repo-manager sync \
             --config repository/sync-config.jsonl \
             --manifest repository/repository.json \
+            --changelog-output /tmp/changelog.txt \
+            --changelog-format text \
             $FLAGS \
             --verbose
 
@@ -163,14 +280,30 @@ jobs:
           git config user.email "actions@github.com"
           git add repository/repository.json
 
-          # Create commit message
+          # Create commit message with changelog
           MSG="chore(repository): sync plugins"
           if [ "${{ steps.params.outputs.prune }}" = "true" ]; then
             MSG="${MSG} with pruning"
           fi
 
-          git commit -m "$MSG"
+          # Read changelog if available
+          if [ -f /tmp/changelog.txt ]; then
+            CHANGELOG=$(cat /tmp/changelog.txt)
+            git commit -m "$MSG" -m "$CHANGELOG"
+          else
+            git commit -m "$MSG"
+          fi
+
           git push
+
+      - name: Upload changelog artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-changelog-${{ github.run_number }}
+          path: /tmp/changelog.txt
+          retention-days: 90
+          if-no-files-found: ignore
 
       - name: Summary
         if: always()
@@ -179,6 +312,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Config**: sync-config.jsonl" >> $GITHUB_STEP_SUMMARY
           echo "- **Prune**: ${{ steps.params.outputs.prune }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.params.outputs.prune }}" = "true" ]; then
+            echo "- **Prune Remove After**: ${{ steps.params.outputs.prune_remove_after }}" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "- **Prune Incompatible**: ${{ steps.params.outputs.prune_incompatible }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Keep Recent**: ${{ steps.params.outputs.keep_recent }}" >> $GITHUB_STEP_SUMMARY
           MIN_VER="${{ steps.params.outputs.min_protocol_version }}"
@@ -188,3 +324,20 @@ jobs:
             echo "- **Min Protocol Version**: (disabled)" >> $GITHUB_STEP_SUMMARY
           fi
           echo "- **Changes**: ${{ steps.changes.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Binary Preference**: ${{ steps.binary_pref.outputs.source_preference }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repo Manager Source**: ${{ steps.download.outputs.source }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered By**: ${{ steps.binary_pref.outputs.triggered_by }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.binary_pref.outputs.triggered_by }}" = "tinct-release" ]; then
+            echo "- **Tinct Release Type**: ${{ steps.binary_pref.outputs.tinct_release_type }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Tinct Release Version**: ${{ steps.binary_pref.outputs.tinct_release_version }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Add changelog to summary if available
+          if [ -f /tmp/changelog.txt ]; then
+            echo "## Changelog" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /tmp/changelog.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
