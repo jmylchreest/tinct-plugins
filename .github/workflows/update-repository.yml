@@ -89,12 +89,14 @@ jobs:
 
       - name: Download repo-manager binary
         id: download
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           SOURCE_PREF="${{ steps.binary_pref.outputs.source_preference }}"
           echo "Fetching tinct-repo-manager binary (preference: $SOURCE_PREF)..."
 
-          DOWNLOAD_URL=""
           RELEASE_TAG=""
+          FOUND_BINARY=false
 
           if [ "$SOURCE_PREF" = "build" ]; then
             echo "Configured to build from source, skipping download"
@@ -103,81 +105,91 @@ jobs:
             exit 0
           fi
 
-          # Fetch all releases (up to 20)
-          echo "Fetching releases..."
-          ALL_RELEASES=$(curl -s "https://api.github.com/repos/jmylchreest/tinct/releases?per_page=20")
+          # Fetch all releases using gh CLI (more reliable than curl)
+          # Explicitly sort by latest first to ensure first match is always the most recent
+          echo "Fetching releases using gh CLI..."
+          ALL_RELEASES=$(gh release list --repo jmylchreest/tinct --limit 30 --order desc --json tagName,isPrerelease,publishedAt)
 
           if [ "$SOURCE_PREF" = "latest" ]; then
             # Get the most recent release (prerelease or stable) with binary
             echo "Looking for most recent release (any type)..."
-            RELEASE=$(echo "$ALL_RELEASES" | jq -r 'first')
-            DOWNLOAD_URL=$(echo "$RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
-            RELEASE_TAG=$(echo "$RELEASE" | jq -r '.tag_name')
-
-            if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
-              echo "Most recent release lacks binary, checking other releases..."
-              for i in $(seq 0 19); do
-                RELEASE=$(echo "$ALL_RELEASES" | jq -r ".[$i]")
-                if [ "$RELEASE" = "null" ]; then
-                  break
-                fi
-                DOWNLOAD_URL=$(echo "$RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
-                if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then
-                  RELEASE_TAG=$(echo "$RELEASE" | jq -r '.tag_name')
-                  echo "Found binary in release: $RELEASE_TAG"
-                  break
-                fi
-              done
-            else
-              echo "Found binary in most recent release: $RELEASE_TAG"
-            fi
+            # Try each release in order until we find one with the required binary
+            for TAG in $(echo "$ALL_RELEASES" | jq -r '.[].tagName'); do
+              echo "Checking release: $TAG"
+              # Try to download the binary for this release
+              if gh release download "$TAG" \
+                  --repo jmylchreest/tinct \
+                  --pattern "*tinct-repo-manager*Linux_x86_64*.tar.gz" \
+                  --skip-existing \
+                  --dir . 2>/dev/null; then
+                RELEASE_TAG="$TAG"
+                FOUND_BINARY=true
+                echo "Found binary in release: $RELEASE_TAG"
+                break
+              fi
+            done
 
           elif [ "$SOURCE_PREF" = "stable" ]; then
             # Get latest stable (non-prerelease) only
             echo "Looking for latest stable release..."
-            STABLE_RELEASE=$(echo "$ALL_RELEASES" | jq -r '[.[] | select(.prerelease == false)] | first')
-            DOWNLOAD_URL=$(echo "$STABLE_RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
-            RELEASE_TAG=$(echo "$STABLE_RELEASE" | jq -r '.tag_name')
-
-            if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then
-              echo "Found binary in stable release: $RELEASE_TAG"
-            else
-              echo "No binary found in stable releases"
-            fi
+            for TAG in $(echo "$ALL_RELEASES" | jq -r '[.[] | select(.isPrerelease == false)] | .[].tagName'); do
+              echo "Checking stable release: $TAG"
+              if gh release download "$TAG" \
+                  --repo jmylchreest/tinct \
+                  --pattern "*tinct-repo-manager*Linux_x86_64*.tar.gz" \
+                  --skip-existing \
+                  --dir . 2>/dev/null; then
+                RELEASE_TAG="$TAG"
+                FOUND_BINARY=true
+                echo "Found binary in stable release: $RELEASE_TAG"
+                break
+              fi
+            done
 
           elif [ "$SOURCE_PREF" = "preview" ]; then
             # Get latest preview (prerelease) only
             echo "Looking for latest preview release..."
-            PREVIEW_RELEASE=$(echo "$ALL_RELEASES" | jq -r '[.[] | select(.prerelease == true)] | first')
-            DOWNLOAD_URL=$(echo "$PREVIEW_RELEASE" | jq -r '.assets[] | select(.name | contains("tinct-repo-manager")) | select(.name | contains("Linux_x86_64")) | .browser_download_url' | head -1)
-            RELEASE_TAG=$(echo "$PREVIEW_RELEASE" | jq -r '.tag_name')
-
-            if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then
-              echo "Found binary in preview release: $RELEASE_TAG"
-            else
-              echo "No binary found in preview releases"
-            fi
+            for TAG in $(echo "$ALL_RELEASES" | jq -r '[.[] | select(.isPrerelease == true)] | .[].tagName'); do
+              echo "Checking preview release: $TAG"
+              if gh release download "$TAG" \
+                  --repo jmylchreest/tinct \
+                  --pattern "*tinct-repo-manager*Linux_x86_64*.tar.gz" \
+                  --skip-existing \
+                  --dir . 2>/dev/null; then
+                RELEASE_TAG="$TAG"
+                FOUND_BINARY=true
+                echo "Found binary in preview release: $RELEASE_TAG"
+                break
+              fi
+            done
           fi
 
-          # Download and verify
-          if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
+          # Extract and verify
+          if [ "$FOUND_BINARY" = false ]; then
             echo "No pre-built binary found, will build from source"
             echo "use_binary=false" >> $GITHUB_OUTPUT
             echo "source=built-from-source" >> $GITHUB_OUTPUT
           else
-            echo "Downloading from: $DOWNLOAD_URL"
-            curl -L -o tinct-repo-manager.tar.gz "$DOWNLOAD_URL"
-            tar -xzf tinct-repo-manager.tar.gz
-            chmod +x tinct-repo-manager
-
-            # Verify it works
-            if ./tinct-repo-manager --version; then
-              echo "use_binary=true" >> $GITHUB_OUTPUT
-              echo "source=$RELEASE_TAG" >> $GITHUB_OUTPUT
-            else
-              echo "Binary check failed, will build from source"
+            echo "Extracting binary from downloaded archive..."
+            # Find the downloaded tar.gz file
+            TARBALL=$(find . -maxdepth 1 -name "*tinct-repo-manager*Linux_x86_64*.tar.gz" | head -1)
+            if [ -z "$TARBALL" ]; then
+              echo "Failed to find downloaded archive, will build from source"
               echo "use_binary=false" >> $GITHUB_OUTPUT
               echo "source=built-from-source" >> $GITHUB_OUTPUT
+            else
+              tar -xzf "$TARBALL"
+              chmod +x tinct-repo-manager
+
+              # Verify it works
+              if ./tinct-repo-manager --version; then
+                echo "use_binary=true" >> $GITHUB_OUTPUT
+                echo "source=$RELEASE_TAG" >> $GITHUB_OUTPUT
+              else
+                echo "Binary check failed, will build from source"
+                echo "use_binary=false" >> $GITHUB_OUTPUT
+                echo "source=built-from-source" >> $GITHUB_OUTPUT
+              fi
             fi
           fi
 
