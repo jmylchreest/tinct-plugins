@@ -106,8 +106,9 @@ jobs:
           fi
 
           # Fetch all releases using gh CLI (more reliable than curl)
+          # Explicitly sort by latest first to ensure first match is always the most recent
           echo "Fetching releases using gh CLI..."
-          ALL_RELEASES=$(gh release list --repo jmylchreest/tinct --limit 30 --json tagName,isPrerelease,publishedAt)
+          ALL_RELEASES=$(gh release list --repo jmylchreest/tinct --limit 30 --order desc --json tagName,isPrerelease,publishedAt)
 
           if [ "$SOURCE_PREF" = "latest" ]; then
             # Get the most recent release (prerelease or stable) with binary
