@@ -3,8 +3,7 @@ name: Update Repository
 on:
   schedule:
     # Hourly sync
-    - cron: "0 * * * *"
-
+    - cron: 17 */6 * * *
   workflow_dispatch:
     inputs:
       binary_source:
@@ -314,7 +313,7 @@ jobs:
         with:
           name: sync-changelog-${{ github.run_number }}
           path: /tmp/changelog.txt
-          retention-days: 90
+          retention-days: 7
           if-no-files-found: ignore
 
       - name: Summary
@@ -353,3 +352,6 @@ jobs:
             cat /tmp/changelog.txt >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
           fi
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
